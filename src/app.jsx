@@ -23,7 +23,7 @@ export default function App() {
       {/* Routing dan Layout */}
       <Router
         root={(props) => (
-          <div>
+          <div class="app-background">
             <Header />
             <div class="py-3 d-flex justify-content-center align-items-center">
               <Timer />

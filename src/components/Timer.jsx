@@ -27,5 +27,5 @@ export default function Timer() {
   const interval = setInterval(updateWaktu, 1000);
   onCleanup(() => clearInterval(interval));
 
-  return <p class="timer">{waktu()}</p>;
+  return <p class="timer text-light">{waktu()}</p>;
 }

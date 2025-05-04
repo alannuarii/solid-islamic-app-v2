@@ -3,7 +3,7 @@ import { toPascalCaseWilayah } from "../lib/utils/word";
 
 export default function SholatCard({ jadwal }) {
   return (
-    <div class="card shadow-sm rounded-4 mx-4">
+    <div class="card shadow-sm rounded-5 mx-4">
       <div class="card-body">
         <h6 class="card-title">
           <i class="bi-calendar-week me-2"></i>
