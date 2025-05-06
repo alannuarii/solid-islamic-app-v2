@@ -3,66 +3,14 @@ import { useNavigate } from "@solidjs/router";
 import { Title } from "@solidjs/meta";
 import "./index.css";
 import SholatCard from "../../components/SholatCard";
-import { getTodayDate } from "../../lib/utils/date";
 import { getSholatInfo } from "../../lib/utils/sholat";
+import { reverseGeocode, getLocationIdFromName } from "../../lib/utils/location";
+import { fetchJadwal } from "../../lib/api/schedule";
+import { fetchKotaList } from "../../lib/api/location";
 
-// API Key Google Maps
-const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
-// Ambil nama kabupaten/kota dari koordinat GPS
-const reverseGeocode = async (lat, lon) => {
-  const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lon}&key=${GOOGLE_MAPS_API_KEY}`;
-  try {
-    const res = await fetch(url);
-    const data = await res.json();
-    if (data.status !== "OK" || !data.results[0]) throw new Error("Geocoding gagal");
 
-    const components = data.results[0].address_components;
-    const kabupaten = components.find((comp) =>
-      comp.types.includes("administrative_area_level_2")
-    );
-    return kabupaten?.long_name?.toUpperCase() ?? null;
-  } catch (err) {
-    console.error("Reverse Geocode error:", err);
-    return null;
-  }
-};
 
-// Ambil daftar kota dari API myquran
-const fetchKotaList = async () => {
-  try {
-    const res = await fetch("https://api.myquran.com/v2/sholat/kota/semua");
-    if (!res.ok) throw new Error("Gagal mengambil daftar kota");
-    const data = await res.json();
-    return data.data;
-  } catch (err) {
-    console.error("Fetch kota list error:", err);
-    return [];
-  }
-};
-
-// Cari ID kota dari nama kabupaten
-const getLocationIdFromName = (lokasiNama, kotaList) => {
-  return kotaList.find((kota) =>
-    lokasiNama.toUpperCase().includes(kota.lokasi.toUpperCase())
-  )?.id;
-};
-
-// Ambil data jadwal sholat dari API
-const fetchJadwal = async (kodeKota) => {
-  try {
-    const today = getTodayDate();
-    const url = `https://api.myquran.com/v2/sholat/jadwal/${kodeKota}/${today}`;
-    const response = await fetch(url);
-    if (!response.ok) throw new Error("Gagal menghubungi API");
-
-    const data = await response.json();
-    return data.data;
-  } catch (error) {
-    console.error("Fetch error:", error);
-    return { error: true, message: error.message };
-  }
-};
 
 export default function Home() {
   const [jadwal, setJadwal] = createSignal(null);
