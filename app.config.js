@@ -1,4 +1,3 @@
-import node from "@vinxi/adapter-node";
-export default defineConfig({
-  adapter: node(),
-});
+import { defineConfig } from "@solidjs/start/config";
+
+export default defineConfig({});
