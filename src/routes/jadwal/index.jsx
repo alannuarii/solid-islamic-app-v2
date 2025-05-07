@@ -8,6 +8,10 @@ import { reverseGeocode, getLocationIdFromName } from "../../lib/utils/location"
 import { fetchJadwal } from "../../lib/api/schedule";
 import { fetchKotaList } from "../../lib/api/location";
 
+
+
+
+
 export default function Home() {
   const [jadwal, setJadwal] = createSignal(null);
   const [infoWaktu, setInfoWaktu] = createSignal(null);
