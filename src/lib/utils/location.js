@@ -23,6 +23,7 @@ export const reverseGeocode = async (lat, lon) => {
   try {
     const res = await fetch(url);
     const data = await res.json();
+    console.log("Geocode response:", data);
     if (data.status !== "OK" || !data.results[0]) throw new Error("Geocoding gagal");
 
     const components = data.results[0].address_components;
