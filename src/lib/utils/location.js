@@ -1,7 +1,5 @@
-// API Key Google Maps
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
-// Fungsi normalisasi nama lokasi
 const normalizeLocationName = (name, type) => {
   let cleaned = name.toUpperCase().trim();
 
@@ -17,13 +15,12 @@ const normalizeLocationName = (name, type) => {
   return cleaned;
 };
 
-// Ambil nama kabupaten/kota dari koordinat GPS
 export const reverseGeocode = async (lat, lon) => {
   const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lon}&key=${GOOGLE_MAPS_API_KEY}`;
   try {
     const res = await fetch(url);
     const data = await res.json();
-    console.log("Geocode response:", data);
+    // console.log("Geocode response:", data);
     if (data.status !== "OK" || !data.results[0]) throw new Error("Geocoding gagal");
 
     const components = data.results[0].address_components;
@@ -37,11 +34,10 @@ export const reverseGeocode = async (lat, lon) => {
     const isKabupaten = /kab\.?|kabupaten/i.test(name);
 
     if (isKabupaten) {
-      return normalizeLocationName(name, "kabupaten"); // akan menjadi "KAB. X"
+      return normalizeLocationName(name, "kabupaten");
     } else if (isCity) {
-      return normalizeLocationName(name, "kota"); // akan menjadi "KOTA Y"
+      return normalizeLocationName(name, "kota");
     } else {
-      // fallback ke kota
       return normalizeLocationName(name, "kota");
     }
   } catch (err) {
@@ -50,9 +46,8 @@ export const reverseGeocode = async (lat, lon) => {
   }
 };
 
-// Cari ID kota dari nama kabupaten
 export const getLocationIdFromName = (lokasiNama, kotaList) => {
-    return kotaList.find((kota) =>
-      lokasiNama.toUpperCase() === kota.lokasi.toUpperCase()
-    )?.id;
-  };
+  return kotaList.find((kota) =>
+    lokasiNama.toUpperCase() === kota.lokasi.toUpperCase()
+  )?.id;
+};
