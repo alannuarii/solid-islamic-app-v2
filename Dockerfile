@@ -3,10 +3,8 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Salin package file terlebih dahulu
 COPY package*.json ./
 COPY app.config.js ./
-COPY .env* ./
 COPY ./ ./
 
 RUN npm install
