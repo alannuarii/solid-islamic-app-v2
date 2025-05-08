@@ -1,142 +1,81 @@
-import { createSignal, onMount, Show, onCleanup } from "solid-js";
+import { createSignal, onMount, Show } from "solid-js";
 import { Title } from "@solidjs/meta";
 
-export default function Kiblat() {
-  const [arahKiblat, setArahKiblat] = createSignal(null); // dari API
-  const [azimuth, setAzimuth] = createSignal(0); // orientasi perangkat
-  const [error, setError] = createSignal(null);
-  const [loading, setLoading] = createSignal(true);
+export default function KiblatPage() {
+  const [kiblat, setKiblat] = createSignal(null);
+  const [azimuth, setAzimuth] = createSignal(0);
+  const [isFacingKiblat, setIsFacingKiblat] = createSignal(false);
 
-  // Fungsi: Ambil arah kiblat dari API Aladhan
-  const fetchQiblaDirection = async (lat, lon) => {
-    try {
-      const res = await fetch(`https://api.aladhan.com/v1/qibla/${lat}/${lon}`);
-      const data = await res.json();
-      if (data.code === 200) {
-        setArahKiblat(data.data.direction);
-      } else {
-        setError("Gagal memuat arah kiblat dari API.");
-      }
-    } catch (err) {
-      setError("Terjadi kesalahan saat mengambil data arah kiblat.");
-    } finally {
-      setLoading(false);
+  onMount(() => {
+    // Ambil lokasi pengguna
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const { latitude, longitude } = position.coords;
+        const res = await fetch(`https://api.aladhan.com/v1/qibla/${latitude}/${longitude}`);
+        const data = await res.json();
+        setKiblat(data.data.direction);
+      });
     }
-  };
 
-  // Fungsi: Dengarkan orientasi perangkat (kompas)
-  const setupOrientationListener = () => {
-    const handleOrientation = (e) => {
-      const alpha = e.alpha ?? 0;
-      // Koreksi iOS vs Android bisa ditambahkan di sini jika dibutuhkan
-      setAzimuth(alpha);
+    // Dengarkan orientasi perangkat
+    const handleOrientation = (event) => {
+      const alpha = event.alpha;
+      if (alpha != null) {
+        const heading = Math.round(alpha);
+        setAzimuth(heading);
+      }
     };
 
-    if (window.DeviceOrientationEvent) {
-      if (typeof DeviceOrientationEvent.requestPermission === "function") {
-        // iOS
-        DeviceOrientationEvent.requestPermission()
-          .then((response) => {
-            if (response === "granted") {
-              window.addEventListener("deviceorientation", handleOrientation, true);
-            } else {
-              setError("Akses orientasi ditolak.");
-            }
-          })
-          .catch(() => setError("Gagal meminta izin sensor."));
-      } else {
-        // Android
-        window.addEventListener("deviceorientation", handleOrientation, true);
-      }
-
-      onCleanup(() => {
-        window.removeEventListener("deviceorientation", handleOrientation);
-      });
-    } else {
-      setError("Perangkat tidak mendukung kompas.");
-    }
-  };
-
-  // Inisialisasi: Ambil lokasi & arah kiblat
-  onMount(() => {
-    if (!navigator.geolocation) {
-      setError("Peramban tidak mendukung geolokasi.");
-      setLoading(false);
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        fetchQiblaDirection(latitude, longitude);
-        setupOrientationListener();
-      },
-      (err) => {
-        setError("Gagal mendapatkan lokasi: " + err.message);
-        setLoading(false);
-      }
-    );
+    window.addEventListener("deviceorientationabsolute", handleOrientation, true);
+    window.addEventListener("deviceorientation", handleOrientation, true);
   });
 
+  const getRotation = () => {
+    if (kiblat() == null) return "rotate(0deg)";
+    const angle = kiblat() - azimuth();
+    return `rotate(${angle}deg)`;
+  };
+
+  const checkAccuracy = () => {
+    if (kiblat() == null) return false;
+    const diff = Math.abs(kiblat() - azimuth());
+    return diff <= 3 || diff >= 357; // wrap-around
+  };
+
+  setInterval(() => {
+    setIsFacingKiblat(checkAccuracy());
+  }, 500);
+
   return (
-    <main class="container py-4 px-5 text-light">
-      <Title>Arah Kiblat Interaktif</Title>
-      <h3 class="fw-bold mb-3">Arah Kiblat Interaktif</h3>
+    <main class="text-center py-4">
+      <Title>Arah Kiblat</Title>
+      <h2 class="text-2xl font-bold text-light mb-4">Arah Kiblat</h2>
 
-      <Show when={loading()}>
-        <p>Memuat arah kiblat dan lokasi...</p>
-      </Show>
-
-      <Show when={error()}>
-        <p class="text-danger">Error: {error()}</p>
-      </Show>
-
-      <Show when={arahKiblat() !== null && !error()}>
-        <p class="fs-5">
-          Arah kiblat dari lokasi Anda: <strong>{arahKiblat().toFixed(2)}°</strong>
-        </p>
-        <p class="fs-6">Arah perangkat: {azimuth().toFixed(2)}°</p>
-
-        <div class="mt-4" style="display: flex; justify-content: center;">
+      <Show when={kiblat()} fallback={<p class="text-light">Memuat arah kiblat...</p>}>
+        <div class="relative w-52 h-52 mx-auto rounded-full border-4 border-gray-500">
+          {/* Kompas latar */}
           <div
-            style={{
-              width: "250px",
-              height: "250px",
-              border: "4px solid #fff",
-              borderRadius: "50%",
-              position: "relative",
-            }}
-          >
-            {/* Penanda kiblat */}
-            <div
-              style={{
-                width: "4px",
-                height: "120px",
-                background: "red",
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: `rotate(${arahKiblat() - azimuth()}deg) translateY(-100%)`,
-                transformOrigin: "bottom center",
-                transition: "transform 0.2s linear",
-              }}
-            ></div>
+            class="absolute top-0 left-0 w-full h-full rounded-full border border-dashed border-white"
+            style={{ transform: "rotate(0deg)" }}
+          ></div>
 
-            {/* Titik pusat */}
-            <div
-              style={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                width: "10px",
-                height: "10px",
-                background: "white",
-                borderRadius: "50%",
-                transform: "translate(-50%, -50%)",
-              }}
-            ></div>
-          </div>
+          {/* Panah arah kiblat */}
+          <div
+            class="absolute top-1/2 left-1/2 w-2 h-24 bg-red-600 origin-bottom -translate-x-1/2 -translate-y-full rounded"
+            style={{ transform: getRotation() }}
+          ></div>
         </div>
+
+        <p class="text-light mt-4">
+          Arah Kiblat: <strong>{Math.round(kiblat())}°</strong>
+        </p>
+        <p class="text-light">
+          Arah Hadapmu: <strong>{azimuth()}°</strong>
+        </p>
+
+        <Show when={isFacingKiblat()}>
+          <p class="mt-3 text-green-400 font-bold text-lg">✔ Arah Kiblat Tepat</p>
+        </Show>
       </Show>
     </main>
   );
