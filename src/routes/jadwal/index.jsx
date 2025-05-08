@@ -4,47 +4,28 @@ import { Title } from "@solidjs/meta";
 import "./index.css";
 import SholatCard from "../../components/SholatCard";
 import { getSholatInfo } from "../../lib/utils/sholat";
-import { reverseGeocode, getLocationIdFromName } from "../../lib/utils/location";
-import { fetchJadwal } from "../../lib/api/schedule";
-import { fetchKotaList } from "../../lib/api/location";
+import { fetchJadwal } from "../../lib/api/schedule"; 
 
-
-
-
-
-export default function Home() {
+export default function Jadwal() {
   const [jadwal, setJadwal] = createSignal(null);
   const [infoWaktu, setInfoWaktu] = createSignal(null);
   const navigate = useNavigate();
 
   onMount(async () => {
+    const kodeKota = localStorage.getItem("kodeKota");
+    const lokasiNama = localStorage.getItem("namaKota");
+
+    if (!kodeKota) {
+      navigate("/lokasi");
+      return;
+    }
+
     try {
-      const kotaList = await fetchKotaList();
-
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-          const lokasiNama = await reverseGeocode(latitude, longitude);
-          if (!lokasiNama) {
-            console.error("Gagal mendeteksi nama lokasi");
-            return;
-          }
-
-          const idLokasi = getLocationIdFromName(lokasiNama, kotaList);
-          if (!idLokasi) {
-            console.error("ID lokasi tidak ditemukan dari:", lokasiNama);
-            return;
-          }
-
-          const dataJadwal = await fetchJadwal(idLokasi);
-          setJadwal(dataJadwal);
-          setInfoWaktu(getSholatInfo(dataJadwal));
-        },
-        (err) => console.error("Gagal mengambil lokasi pengguna:", err),
-        { enableHighAccuracy: true }
-      );
+      const dataJadwal = await fetchJadwal(kodeKota);
+      setJadwal(dataJadwal);
+      setInfoWaktu(getSholatInfo(dataJadwal));
     } catch (err) {
-      console.error("Inisialisasi gagal:", err);
+      console.error("Gagal memuat jadwal:", err);
     }
   });
 
@@ -52,15 +33,18 @@ export default function Home() {
     <main>
       <Title>Jadwal Sholat</Title>
       <section>
-        <div class="row">
-          <div class="col-8">
-            <h3 class="mb-3 fw-bold text-light text-center">Jadwal Sholat</h3>
-          </div>
-          <div class="col-4 d-flex justify-content-start align-items-center">
-            <button class="btn btn-sm btn-light" onClick={() => navigate("/lokasi")}>
-              Ubah Lokasi
-            </button>
-          </div>
+        <div class="mb-3">
+          <h3 class="fw-bold text-light text-center">Jadwal Sholat</h3>
+          <button
+            class="btn btn-sm btn-light"
+            onClick={() => {
+              localStorage.removeItem("kodeKota");
+              localStorage.removeItem("namaKota");
+              navigate("/lokasi");
+            }}
+          >
+            Ubah Lokasi
+          </button>
         </div>
 
         <Show when={jadwal()} fallback={<p class="text-light">Memuat data...</p>}>

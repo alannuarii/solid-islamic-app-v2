@@ -1,6 +1,5 @@
 import {getTodayDate} from "../utils/date"
 
-// Ambil data jadwal sholat dari API
 export const fetchJadwal = async (kodeKota) => {
   try {
     const today = getTodayDate();
