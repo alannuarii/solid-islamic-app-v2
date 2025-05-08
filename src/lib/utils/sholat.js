@@ -1,7 +1,7 @@
-// utils/sholatInfo.js
+// solid-islamic-app-v2/src/lib/utils/sholat.js
 export function getSholatInfo(jadwal) {
   const waktuSekarang = new Date();
-  const dateStr = jadwal.jadwal.date; // format: YYYY-MM-DD
+  const dateStr = jadwal.jadwal.date;
   const waktuList = [
     { nama: "SUBUH", waktu: jadwal.jadwal.subuh },
     { nama: "DZUHUR", waktu: jadwal.jadwal.dzuhur },

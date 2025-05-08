@@ -39,7 +39,6 @@ export default function Location() {
                   class="btn btn-sm btn-outline-primary"
                   onClick={() => {
                     localStorage.setItem("kodeKota", item.id);
-                    localStorage.setItem("namaKota", item.lokasi);
                     navigate("/jadwal");
                   }}
                 >

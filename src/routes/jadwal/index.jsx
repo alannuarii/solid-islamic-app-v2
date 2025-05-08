@@ -13,7 +13,6 @@ export default function Jadwal() {
 
   onMount(async () => {
     const kodeKota = localStorage.getItem("kodeKota");
-    const lokasiNama = localStorage.getItem("namaKota");
 
     if (!kodeKota) {
       navigate("/lokasi");
