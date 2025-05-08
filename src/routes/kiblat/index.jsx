@@ -7,7 +7,7 @@ export default function KiblatPage() {
   const [isFacingKiblat, setIsFacingKiblat] = createSignal(false);
 
   onMount(() => {
-    // Ambil lokasi pengguna
+    // Ambil arah kiblat
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(async (position) => {
         const { latitude, longitude } = position.coords;
@@ -17,7 +17,7 @@ export default function KiblatPage() {
       });
     }
 
-    // Dengarkan orientasi perangkat
+    // Orientasi perangkat
     const handleOrientation = (event) => {
       const alpha = event.alpha;
       if (alpha != null) {
@@ -39,7 +39,7 @@ export default function KiblatPage() {
   const checkAccuracy = () => {
     if (kiblat() == null) return false;
     const diff = Math.abs(kiblat() - azimuth());
-    return diff <= 3 || diff >= 357; // wrap-around
+    return diff <= 3 || diff >= 357;
   };
 
   setInterval(() => {
@@ -47,34 +47,40 @@ export default function KiblatPage() {
   }, 500);
 
   return (
-    <main class="text-center py-4">
+    <main class="container py-5" style={{ textAlign: "center" }}>
       <Title>Arah Kiblat</Title>
-      <h2 class="text-2xl font-bold text-light mb-4">Arah Kiblat</h2>
+      <h2 class="mb-4 display-4">Arah Kiblat</h2>
 
-      <Show when={kiblat()} fallback={<p class="text-light">Memuat arah kiblat...</p>}>
-        <div class="relative w-52 h-52 mx-auto rounded-full border-4 border-gray-500">
-          {/* Kompas latar */}
-          <div
-            class="absolute top-0 left-0 w-full h-full rounded-full border border-dashed border-white"
-            style={{ transform: "rotate(0deg)" }}
-          ></div>
-
+      <Show when={kiblat()} fallback={<p>Memuat arah kiblat...</p>}>
+        <div
+          class="position-relative mx-auto"
+          style={{
+            width: "200px",
+            height: "200px",
+            borderRadius: "50%",
+            border: "4px solid #ccc",
+          }}
+        >
           {/* Panah arah kiblat */}
           <div
-            class="absolute top-1/2 left-1/2 w-2 h-24 bg-red-600 origin-bottom -translate-x-1/2 -translate-y-full rounded"
-            style={{ transform: getRotation() }}
+            class={`position-absolute top-50 start-50 translate-middle w-2 h-25 rounded-3 ${
+              isFacingKiblat() ? "bg-success" : "bg-danger"
+            }`}
+            style={{
+              transform: `${getRotation()} translate(-50%, -100%)`,
+              transformOrigin: "bottom center",
+              transition: "background-color 0.3s",
+            }}
           ></div>
         </div>
 
-        <p class="text-light mt-4">
-          Arah Kiblat: <strong>{Math.round(kiblat())}°</strong>
-        </p>
-        <p class="text-light">
-          Arah Hadapmu: <strong>{azimuth()}°</strong>
-        </p>
+        <div class="mt-4">
+          <p>Arah Kiblat: <strong>{Math.round(kiblat())}°</strong></p>
+          <p>Arah Hadapmu: <strong>{azimuth()}°</strong></p>
+        </div>
 
         <Show when={isFacingKiblat()}>
-          <p class="mt-3 text-green-400 font-bold text-lg">✔ Arah Kiblat Tepat</p>
+          <p class="mt-3 text-success font-weight-bold">✔ Kamu sudah menghadap Kiblat</p>
         </Show>
       </Show>
     </main>
