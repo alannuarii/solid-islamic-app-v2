@@ -15,7 +15,7 @@ export default function Home() {
             <A href="/kiblat" class="btn btn-lg btn-outline-light w-100 mb-3 rounded-4 border-3">
               Arah Kiblat
             </A>
-            <A href="/quran" class="btn btn-lg btn-outline-light w-100 mb-3 rounded-4 border-3">
+            <A href="/quran/1" class="btn btn-lg btn-outline-light w-100 mb-3 rounded-4 border-3">
               Al-Quran
             </A>
             <A href="/doa" class="btn btn-lg btn-outline-light w-100 mb-3 rounded-4 border-3">
