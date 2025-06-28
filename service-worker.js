@@ -3,8 +3,8 @@ const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
     '/manifest.webmanifest',
-    '/img/icon128.png',
-    '/img/icon512.png',
+    '/icon128.png',
+    '/icon512.png',
     // Tambahkan file lain yang perlu di-cache seperti CSS, JS, dll
 ];
 
