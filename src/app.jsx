@@ -1,13 +1,21 @@
 // @refresh reload
 import { Router } from "@solidjs/router";
 import { FileRoutes } from "@solidjs/start/router";
-import { Suspense } from "solid-js";
+import { Suspense, createEffect } from "solid-js";  // import createEffect
 import { MetaProvider, Title, Link } from "@solidjs/meta";
 import Header from "./components/Header";
 import Timer from "./components/Timer";
 import "./app.css";
 
 export default function App() {
+  createEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(() => console.log('Service Worker registered'))
+        .catch(err => console.error('Service Worker registration failed:', err));
+    }
+  });
+
   return (
     <MetaProvider>
       {/* Set Title halaman */}
