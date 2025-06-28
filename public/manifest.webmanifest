@@ -1,6 +1,6 @@
 {
   "name": "Islamic App",
-  "short_name": "IslamicApp",
+  "short_name": "Islamic App",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
