@@ -12,9 +12,6 @@ export default function Home() {
             <A href="/jadwal" class="btn btn-lg btn-outline-light w-100 mb-3 rounded-4 border-3">
               Jadwal Sholat
             </A>
-            <A href="/kiblat" class="btn btn-lg btn-outline-light w-100 mb-3 rounded-4 border-3">
-              Arah Kiblat
-            </A>
             <A href="/quran/1" class="btn btn-lg btn-outline-light w-100 mb-3 rounded-4 border-3">
               Al-Quran
             </A>
